@@ -3,6 +3,7 @@ Simple RAG System - FastAPI 入口
 基於 sysbrain_bankend 專案架構設計的簡化版 RAG 系統
 """
 import uvicorn
+import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from utils.database import init_db
 from controllers import auth_router, knowledge_router, chat_router
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def encode(self, o):
+        if isinstance(o, str):
+            return super().encode(o)
+        return super().encode(o)
 
 
 @asynccontextmanager
@@ -29,7 +37,8 @@ app = FastAPI(
     title="Simple RAG System",
     description="一個簡化版的 RAG (Retrieval-Augmented Generation) 系統",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    json_encoder=CustomJSONEncoder
 )
 
 # CORS 設定
@@ -66,7 +75,7 @@ async def health_check():
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
-        port=8000,
+        host="127.0.0.1",
+        port=8001,
         reload=settings.debug
     )

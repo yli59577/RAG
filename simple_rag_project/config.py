@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     # App
     secret_key: str = os.getenv("SECRET_KEY", "your-secret-key")
     debug: bool = os.getenv("DEBUG", "1") == "1"
+    upload_dir: str = os.getenv("UPLOAD_DIR", "./.tmp/uploads")
 
 
 settings = Settings()

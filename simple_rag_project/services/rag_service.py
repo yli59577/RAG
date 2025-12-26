@@ -11,15 +11,15 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from models import Document
 from utils.vector_store import vector_store
+from config import settings
 
 
 class RAGService:
     """RAG 服務"""
     
-    UPLOAD_DIR = "./.tmp/uploads"
-    
     def __init__(self):
-        os.makedirs(self.UPLOAD_DIR, exist_ok=True)
+        self.upload_dir = settings.upload_dir
+        os.makedirs(self.upload_dir, exist_ok=True)
     
     @staticmethod
     def extract_text_from_pdf(file_path: str) -> List[str]:
@@ -92,7 +92,7 @@ class RAGService:
             (成功與否, 訊息)
         """
         # 1. 儲存檔案
-        file_path = os.path.join(self.UPLOAD_DIR, filename)
+        file_path = os.path.join(self.upload_dir, filename)
         with open(file_path, "wb") as f:
             f.write(file_content)
         
@@ -175,7 +175,7 @@ class RAGService:
         vector_store.delete_by_filename(collection_name, filename)
         
         # 刪除檔案
-        file_path = os.path.join(self.UPLOAD_DIR, filename)
+        file_path = os.path.join(self.upload_dir, filename)
         if os.path.exists(file_path):
             os.remove(file_path)
         
