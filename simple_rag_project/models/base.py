@@ -1,4 +1,3 @@
-"""SQLAlchemy Base Model"""
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
@@ -12,3 +11,7 @@ class Base(DeclarativeBase):
         return cls.__name__.lower()
     
     id = Column(Integer, primary_key=True, autoincrement=True)
+
+    def __repr__(self) -> str:
+        """模型字符串表示"""
+        return f"<{self.__class__.__name__}(id={self.id})>"

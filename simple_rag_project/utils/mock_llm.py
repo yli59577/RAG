@@ -1,7 +1,7 @@
 """
 Mock LLM 服務 - 用於測試，不需要真實的 LLM
 """
-from typing import AsyncIterator
+from typing import AsyncIterator  # 型別提示
 
 
 class MockLLMService:
@@ -26,8 +26,11 @@ class MockLLMService:
             if keyword in prompt_lower:
                 return response
         
-        # 默認回答
-        return f"我收到了你的問題：'{prompt[:50]}...'。很抱歉，我無法提供具體的回答，但我很樂意幫助你！"
+        # 默認回答 - 提取問題的關鍵詞
+        if "?" in prompt or "？" in prompt:
+            return f"根據你的問題，我理解你想了解相關信息。基於可用的資料，我可以告訴你這是一個很好的問題。如果你上傳了相關文檔，我會根據文檔內容為你提供更具體的答案。"
+        
+        return f"我收到了你的信息。很樂意幫助你！"
     
     async def astream(self, prompt: str) -> AsyncIterator[str]:
         """串流生成回答"""
@@ -40,9 +43,10 @@ class MockLLMService:
         """RAG 問答（非同步）"""
         # 如果有上下文，使用上下文
         if context and "沒有找到相關資料" not in context:
-            # 從上下文中提取信息
-            return f"根據提供的文檔資料：\n\n{context[:500]}...\n\n總結：這份文檔主要介紹了網站的基本概念，包括網站的定義、結構、功能等內容。"
+            # 從上下文中提取信息並生成回答
+            return f"根據提供的文檔資料，我可以回答你的問題：\n\n{question}\n\n相關資訊：\n{context[:300]}...\n\n基於以上資料，這份文檔提供了相關的信息來回答你的問題。"
         else:
+            # 沒有相關資料時，使用通用回答
             return await self.agenerate(question)
     
     async def rag_query_stream(self, question: str, context: str) -> AsyncIterator[str]:

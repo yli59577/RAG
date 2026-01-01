@@ -2,15 +2,15 @@
 Simple RAG System - FastAPI 入口
 基於 sysbrain_bankend 專案架構設計的簡化版 RAG 系統
 """
-import uvicorn
-import json
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import uvicorn  # ASGI 伺服器
+import json  # JSON 序列化
+from contextlib import asynccontextmanager  # 非同步上下文管理器
+from fastapi import FastAPI  # FastAPI 框架
+from fastapi.middleware.cors import CORSMiddleware  # CORS 中間件
 
-from config import settings
-from utils.database import init_db
-from controllers import auth_router, knowledge_router, chat_router
+from config import settings  # 應用設定
+from utils.database import init_db  # 資料庫初始化
+from controllers import knowledge_router, chat_router  # API 路由
 
 
 class CustomJSONEncoder(json.JSONEncoder):
@@ -51,25 +51,8 @@ app.add_middleware(
 )
 
 # 註冊路由
-app.include_router(auth_router)
 app.include_router(knowledge_router)
 app.include_router(chat_router)
-
-
-@app.get("/")
-async def root():
-    """首頁"""
-    return {
-        "message": "Welcome to Simple RAG System",
-        "docs": "/docs",
-        "redoc": "/redoc"
-    }
-
-
-@app.get("/health")
-async def health_check():
-    """健康檢查"""
-    return {"status": "healthy"}
 
 
 if __name__ == "__main__":

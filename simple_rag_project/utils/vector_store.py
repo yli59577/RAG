@@ -1,12 +1,12 @@
 """向量資料庫操作"""
-from typing import List, Dict, Any
-from uuid import uuid4
+from typing import List, Dict, Any  # 型別提示
+from uuid import uuid4  # 生成唯一 ID
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
-from sentence_transformers import SentenceTransformer
+from qdrant_client import QdrantClient  # Qdrant 向量資料庫客戶端
+from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue  # Qdrant 資料結構
+from sentence_transformers import SentenceTransformer  # 文本嵌入模型
 
-from config import settings
+from config import settings  # 應用設定
 
 
 class VectorStore:
@@ -64,7 +64,7 @@ class VectorStore:
         self.ensure_collection(collection_name)
         
         if metadata_list is None:
-            metadata_list = [{}] * len(documents)
+            metadata_list = [{}] * len(documents) #依照docment的長度來去設定metadata_list會有幾個空字典
         
         # 向量化
         vectors = self.embed_batch(documents)

@@ -1,9 +1,7 @@
 """LLM 服務封裝"""
-from typing import AsyncIterator, Literal
+from typing import AsyncIterator
 
 from langchain_ollama import ChatOllama
-from langchain_openai import AzureChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -42,35 +40,16 @@ class LLMService:
     
     def _create_llm(self):
         """建立 LLM 實例"""
-        match self.llm_type:
-            case "mock":
-                # 返回 None，使用 mock 服務
-                return None
-            case "ollama":
-                return ChatOllama(
-                    model=self.model_name or settings.ollama_model,
-                    base_url=settings.ollama_url,
-                    temperature=0.7
-                )
-            case "azure":
-                return AzureChatOpenAI(
-                    azure_endpoint=settings.azure_openai_endpoint,
-                    api_key=settings.azure_openai_api_key,
-                    azure_deployment=settings.azure_openai_deployment,
-                    api_version="2024-05-01-preview"
-                )
-            case "gemini":
-                return ChatGoogleGenerativeAI(
-                    model="gemini-1.5-flash",
-                    google_api_key=settings.gemini_api_key
-                )
-            case _:
-                raise ValueError(f"不支援的 LLM 類型: {self.llm_type}")
-    
-    def generate(self, prompt: str) -> str:
-        """同步生成回答"""
-        response = self.llm.invoke(prompt)
-        return response.content
+        if self.llm_type == "mock":
+            return None
+        elif self.llm_type == "ollama":
+            return ChatOllama(
+                model=self.model_name or settings.ollama_model,
+                base_url=settings.ollama_url,
+                temperature=0.7
+            )
+        else:
+            raise ValueError(f"不支援的 LLM 類型: {self.llm_type}")
     
     async def agenerate(self, prompt: str) -> str:
         """非同步生成回答"""
@@ -91,11 +70,6 @@ class LLMService:
             async for chunk in self.llm.astream(prompt):
                 if chunk.content:
                     yield chunk.content
-    
-    def rag_query(self, question: str, context: str) -> str:
-        """RAG 問答（同步）"""
-        prompt = RAG_PROMPT.format(context=context, question=question)
-        return self.generate(prompt)
     
     async def rag_query_async(self, question: str, context: str) -> str:
         """RAG 問答（非同步）"""
